@@ -1,0 +1,69 @@
+<head>
+    <title>Feelings Wheel</title>
+    <style>
+    #container {
+        position: relative;
+    }
+
+    #pointerImg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        transform-origin: bottom center;
+    }
+</style>
+</head>
+<body>
+    <div id="container">
+        <div>
+            <img
+                src="wheel.png"
+                width="1000"
+            >
+            <img
+                id="pointerImg"
+                src="pointer.png"
+                height="180"
+            >
+        </div>
+        <div>
+            <button id="button">Spin Wheel</button>
+        </div>
+    </div>
+
+    <script>
+        const style = pointerImg.style;
+    const xTranslatePixels = 492;
+    const yTranslatePixels = 100;
+    let currentDegrees = 0;
+
+    const setRotationDegrees = degrees => style.transform = `translate(${xTranslatePixels}px, ${yTranslatePixels}px) rotate(${degrees}deg)`;
+
+    button.addEventListener('click', () => {
+        const a = 5e-8;
+        let v = 1e-2 * (Math.random() + 1);
+
+        let lastTimestamp;
+        const step = (timestamp) => {
+            if (lastTimestamp === undefined) {
+                lastTimestamp = timestamp;
+            }
+            const dt = timestamp - lastTimestamp;
+            v = v - a * dt;
+            console.log(`v = ${v}`);
+
+            if (v > 0) {
+                currentDegrees += v * dt;
+                requestAnimationFrame(step);
+            }
+
+            setRotationDegrees(currentDegrees)
+        }
+
+        requestAnimationFrame(step);
+    });
+
+    setRotationDegrees(currentDegrees);
+    </script>
+</body>
