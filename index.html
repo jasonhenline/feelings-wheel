@@ -28,41 +28,79 @@
             >
         </div>
         <div>
-            <button id="button">Spin Wheel</button>
+            <button id="button">Click and Hold to Build Power</button>
+            <progress
+                id="progress"
+                max="1"
+                value="0"
+            ></progress>
         </div>
     </div>
 
     <script>
         const style = pointerImg.style;
-    const xTranslatePixels = 492;
-    const yTranslatePixels = 100;
-    let currentDegrees = 0;
+        let currentDegrees = 0;
 
-    const setRotationDegrees = degrees => style.transform = `rotate(${degrees}deg)`;
+        const setRotationDegrees = degrees => style.transform = `rotate(${degrees}deg)`;
 
-    button.addEventListener('click', () => {
-        const a = 5e-8;
-        let v = 1e-2 * (Math.random() + 1);
+        button.addEventListener('mousedown', () => {
+            let progressBuildingStartTimestamp;
+            let isBuildingProgress = true;
+            let progressValue = 0;
 
-        let lastTimestamp;
-        const step = (timestamp) => {
-            if (lastTimestamp === undefined) {
-                lastTimestamp = timestamp;
+            const stepProgressBuilding = timestamp => {
+                if (!isBuildingProgress) {
+                    progressValue = 0;
+                    progress.value = 0;
+                    return;
+                }
+                if (progressBuildingStartTimestamp === undefined) {
+                    progressBuildingStartTimestamp = timestamp;
+                }
+                const dt = timestamp - progressBuildingStartTimestamp;
+                progressValue = Math.tanh(5e-4 * dt) * (1 - 1e-2 * Math.random());
+                progress.value = progressValue;
+                requestAnimationFrame(stepProgressBuilding);
             }
-            const dt = timestamp - lastTimestamp;
-            v = v - a * dt;
 
-            if (v > 0) {
-                currentDegrees += v * dt;
-                requestAnimationFrame(step);
+            const handleButtonMouseUp = () => {
+                button.removeEventListener('mouseup', handleButtonMouseUp);
+                isBuildingProgress = false;
+
+                const a = 5e-9;
+                let v = 1e-2 * progressValue;
+
+                let lastSpinTimestamp;
+                const stepSpinner = timestamp => {
+                    if (lastSpinTimestamp === undefined) {
+                        lastSpinTimestamp = timestamp;
+                    }
+                    const dt = timestamp - lastSpinTimestamp;
+                    v = v - a * dt;
+
+                    if (v > 0) {
+                        currentDegrees += v * dt;
+                        requestAnimationFrame(stepSpinner);
+                    }
+
+                    setRotationDegrees(currentDegrees)
+                }
+                requestAnimationFrame(stepSpinner);
             }
 
-            setRotationDegrees(currentDegrees)
-        }
+            button.addEventListener('mouseup', handleButtonMouseUp);
 
-        requestAnimationFrame(step);
-    });
+            const handleWindowMouseUp = () => {
+                button.removeEventListener('mouseup', handleButtonMouseUp);
+                window.removeEventListener('mouseup', handleWindowMouseUp);
+                isBuildingProgress = false;
+            }
 
-    setRotationDegrees(currentDegrees);
+            window.addEventListener('mouseup', handleWindowMouseUp);
+
+            requestAnimationFrame(stepProgressBuilding);
+        });
+
+        setRotationDegrees(currentDegrees);
     </script>
 </body>
