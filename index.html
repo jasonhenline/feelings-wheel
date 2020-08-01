@@ -45,7 +45,7 @@
 
         const getCurrentMilliseconds = () => (new Date()).valueOf();
 
-        button.addEventListener('mousedown', () => {
+        button.addEventListener('pointerdown', () => {
             let progressBuildingStartTimestamp;
             let isBuildingProgress = true;
             let progressValue = 0;
@@ -72,7 +72,7 @@
             }
 
             const handleButtonMouseUp = () => {
-                button.removeEventListener('mouseup', handleButtonMouseUp);
+                button.removeEventListener('pointerup', handleButtonMouseUp);
                 isBuildingProgress = false;
 
                 const a = 3e-4;
@@ -94,15 +94,15 @@
                 stepSpinner();
             }
 
-            button.addEventListener('mouseup', handleButtonMouseUp);
+            button.addEventListener('pointerup', handleButtonMouseUp);
 
             const handleWindowMouseUp = () => {
-                button.removeEventListener('mouseup', handleButtonMouseUp);
-                window.removeEventListener('mouseup', handleWindowMouseUp);
+                button.removeEventListener('pointerup', handleButtonMouseUp);
+                window.removeEventListener('pointerup', handleWindowMouseUp);
                 isBuildingProgress = false;
             }
 
-            window.addEventListener('mouseup', handleWindowMouseUp);
+            window.addEventListener('pointerup', handleWindowMouseUp);
 
             requestAnimationFrame(stepProgressBuilding);
         });
