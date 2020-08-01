@@ -43,10 +43,18 @@
 
         const setRotationDegrees = degrees => style.transform = `rotate(${degrees}deg)`;
 
+        const getCurrentMilliseconds = () => (new Date()).valueOf();
+
         button.addEventListener('mousedown', () => {
             let progressBuildingStartTimestamp;
             let isBuildingProgress = true;
             let progressValue = 0;
+
+            const drawSpinner = () => {
+                setRotationDegrees(currentDegrees);
+                requestAnimationFrame(drawSpinner);
+            }
+            requestAnimationFrame(drawSpinner);
 
             const stepProgressBuilding = timestamp => {
                 if (!isBuildingProgress) {
@@ -58,7 +66,7 @@
                     progressBuildingStartTimestamp = timestamp;
                 }
                 const dt = timestamp - progressBuildingStartTimestamp;
-                progressValue = Math.tanh(5e-4 * dt) * (1 - 1e-2 * Math.random());
+                progressValue = Math.tanh(5e-4 * dt) * (1 - 5e-2 * Math.random());
                 progress.value = progressValue;
                 requestAnimationFrame(stepProgressBuilding);
             }
@@ -67,25 +75,23 @@
                 button.removeEventListener('mouseup', handleButtonMouseUp);
                 isBuildingProgress = false;
 
-                const a = 5e-9;
-                let v = 1e-2 * progressValue;
+                const a = 3e-4;
+                let v = 2 * progressValue;
 
-                let lastSpinTimestamp;
-                const stepSpinner = timestamp => {
-                    if (lastSpinTimestamp === undefined) {
-                        lastSpinTimestamp = timestamp;
-                    }
-                    const dt = timestamp - lastSpinTimestamp;
+                let lastSpinTimestamp = getCurrentMilliseconds();
+                const stepSpinner = () => {
+                    const currentTimestamp = getCurrentMilliseconds();
+                    const dt = currentTimestamp - lastSpinTimestamp;
+                    lastSpinTimestamp = currentTimestamp;
                     v = v - a * dt;
 
                     if (v > 0) {
                         currentDegrees += v * dt;
-                        requestAnimationFrame(stepSpinner);
+                        setTimeout(stepSpinner, 1);
                     }
-
-                    setRotationDegrees(currentDegrees)
                 }
-                requestAnimationFrame(stepSpinner);
+
+                stepSpinner();
             }
 
             button.addEventListener('mouseup', handleButtonMouseUp);
