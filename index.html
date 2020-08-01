@@ -15,6 +15,22 @@
 
     #button {
         user-select: none;
+        font-size: 24px;
+        width: 200px;
+    }
+
+    .flex {
+        display: flex;
+        align-items: center;
+    }
+
+    .flex * + * {
+        margin-left: 30px;
+    }
+
+    progress {
+        height: 80px;
+        width: 510px;
     }
 </style>
 </head>
@@ -31,7 +47,7 @@
                 height="180"
             >
         </div>
-        <div>
+        <div class="flex">
             <button id="button">Click and Hold to Build Power</button>
             <progress
                 id="progress"
