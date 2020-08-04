@@ -58,10 +58,9 @@
     </div>
 
     <script>
-        const style = pointerImg.style;
         let currentDegrees = 0;
 
-        const setRotationDegrees = degrees => style.transform = `rotate(${degrees}deg)`;
+        const setRotationDegrees = degrees => pointerImg.style.transform = `rotate(${degrees}deg)`;
 
         const getCurrentMilliseconds = () => (new Date()).valueOf();
 
@@ -69,12 +68,6 @@
             let progressBuildingStartTimestamp;
             let isBuildingProgress = true;
             let progressValue = 0;
-
-            const drawSpinner = () => {
-                setRotationDegrees(currentDegrees);
-                requestAnimationFrame(drawSpinner);
-            }
-            requestAnimationFrame(drawSpinner);
 
             const stepProgressBuilding = timestamp => {
                 if (!isBuildingProgress) {
@@ -95,20 +88,24 @@
                 button.removeEventListener('pointerup', handleButtonMouseUp);
                 isBuildingProgress = false;
 
+                const t0 = getCurrentMilliseconds();
+                const x0 = currentDegrees;
+                const v0 = 2 * progressValue;
                 const a = 3e-4;
-                let v = 2 * progressValue;
 
-                let lastSpinTimestamp = getCurrentMilliseconds();
                 const stepSpinner = () => {
-                    const currentTimestamp = getCurrentMilliseconds();
-                    const dt = currentTimestamp - lastSpinTimestamp;
-                    lastSpinTimestamp = currentTimestamp;
-                    v = v - a * dt;
+                    const t = getCurrentMilliseconds();
+                    const dt = t - t0;
+                    const v = v0 - a * dt;
 
                     if (v > 0) {
-                        currentDegrees += v * dt;
-                        setTimeout(stepSpinner, 1);
+                        currentDegrees = x0 + 0.5 * (v + v0) * dt;
+                        requestAnimationFrame(stepSpinner);
+                    } else {
+                        currentDegrees = x0 + 0.5 * v0 * v0 / a;
                     }
+
+                    setRotationDegrees(currentDegrees);
                 }
 
                 stepSpinner();
